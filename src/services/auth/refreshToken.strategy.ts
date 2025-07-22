@@ -14,7 +14,7 @@ export class RefreshJWTStrategy extends PassportStrategy(Strategy, 'refresh-jwt'
       secretOrKey: process.env.REFRESH_TOKEN_SECRET,
     });
   }
-  validate(payload: { sub: string; email: string; role: Role }) {
+  validate(payload: { sub: number; email: string; role: Role }) {
     return {
       id: payload.sub,
       email: payload.email,

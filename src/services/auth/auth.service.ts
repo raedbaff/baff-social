@@ -1,16 +1,18 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient, Role, User } from 'generated/prisma';
-import { ERegisterUser } from 'src/DTO/register.dto';
-import { UserModel } from 'src/DTO/user.dto';
+import { ERegisterUser } from 'src/DTO/user/register.dto';
+import { UserModel } from 'src/DTO/user/user.dto';
 import * as bcrypt from 'bcrypt';
-import { ELoginUser } from 'src/DTO/login.dto';
+import { ELoginUser } from 'src/DTO/user/login.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { EUpdateUser } from 'src/DTO/user/user.update.dto';
 
 export interface IAuthService {
   register(data: ERegisterUser): Promise<UserModel>;
   login(data: ELoginUser): Promise<{ user: UserModel; token: string; refreshToken: string }>;
-  generateAccessAndRefreshTokens(user: { id: string; email: string; role: Role }): Promise<{ accessToken: string; refreshToken: string }>;
+  updateUserInfo(User: { id: number; email: string; role: Role }, userId: number, UserInfo: EUpdateUser): Promise<UserModel>;
+  generateAccessAndRefreshTokens(user: { id: number; email: string; role: Role }): Promise<{ accessToken: string; refreshToken: string }>;
 }
 
 @Injectable()
@@ -19,6 +21,22 @@ export class AuthService implements IAuthService {
     private readonly prisma: PrismaService,
     private jwt: JwtService,
   ) {}
+  async updateUserInfo(User: { id: number; email: string; role: Role }, userId: number, UserInfo: EUpdateUser): Promise<UserModel> {
+    const id = Number(userId);
+    if (!id) throw new BadRequestException('Invalid user id');
+    if (User.id !== id) throw new UnauthorizedException('You are not authorized to update this user');
+
+    const { links, ...rest } = UserInfo;
+    const updatedUser = await this.prisma.user.update({ where: { id }, data: rest });
+    if (Array.isArray(links) && links.length > 0) {
+      await this.prisma.link.deleteMany({ where: { userId: id } });
+      await this.prisma.link.createMany({
+        data: links.map((link) => ({ ...link })),
+      });
+    }
+
+    return new UserModel({ id: updatedUser.id, email: updatedUser.email, username: updatedUser.username });
+  }
 
   async register(data: ERegisterUser): Promise<UserModel> {
     const existingUser = await this.prisma.user.findUnique({
@@ -48,7 +66,7 @@ export class AuthService implements IAuthService {
     return { user, token, refreshToken };
   }
   async generateAccessAndRefreshTokens(user: {
-    id: string;
+    id: number;
     email: string;
     role: Role;
   }): Promise<{ accessToken: string; refreshToken: string }> {
