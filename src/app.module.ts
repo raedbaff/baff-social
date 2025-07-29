@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './services/prisma/prisma.service';
 import { AuthService } from './services/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -9,6 +8,8 @@ import { AuthController } from './services/auth/auth.controller';
 import { JWTStrategy } from './services/auth/jwt.strategy';
 import { RefreshJWTStrategy } from './services/auth/refreshToken.strategy';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { MessagingModule } from './messaging/messaging.module';
+import { PrismaModule } from './services/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -18,8 +19,10 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     }),
     PassportModule,
     FileUploadModule,
+    MessagingModule,
+    PrismaModule,
   ],
   controllers: [AppController, AuthController],
-  providers: [AppService, PrismaService, AuthService, JWTStrategy, RefreshJWTStrategy],
+  providers: [AppService, AuthService, JWTStrategy, RefreshJWTStrategy],
 })
 export class AppModule {}

@@ -27,6 +27,38 @@ model User {
   links Link[]
   role  Role @default(USER)
   photo String?
+  messages Message[]
+  directMessages Message[] @relation("DirectMessages")
+  files   MessageFile[]
+  groupChats GroupChat[] @relation("GroupChatUsers")
+}
+model Message {
+  id        Int      @default(autoincrement()) @id
+  content   String
+  files     MessageFile[]
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  receiverId Int?
+  receiver  User?    @relation("DirectMessages", fields: [receiverId], references: [id])
+  groupChatId Int?
+  groupChat GroupChat? @relation(fields: [groupChatId], references: [id])
+}
+model MessageFile {
+  id        Int      @default(autoincrement()) @id
+  url       String
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  messageId Int?
+  message   Message? @relation(fields: [messageId], references: [id])
+}
+model GroupChat {
+  id        Int      @default(autoincrement()) @id
+  name      String
+  createdAt DateTime @default(now())
+  users     User[]   @relation("GroupChatUsers")
+  messages  Message[]
 }
 
 model Link {
