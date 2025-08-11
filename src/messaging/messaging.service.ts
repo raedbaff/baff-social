@@ -4,10 +4,11 @@ import { UpdateMessagingDto } from './dto/update-messaging.dto';
 import { Role } from 'generated/prisma';
 import { Messaging } from './entities/messaging.entity';
 import { PrismaService } from 'src/services/prisma/prisma.service';
+import { MessagingGateway } from './messaging.gateway';
 
 @Injectable()
 export class MessagingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private messagingGateway: MessagingGateway) {}
   async create(user: { id: number; email: string; role: Role }, createMessagingDto: CreateMessagingDto) {
     const message = await this.prisma.message.create({
       data: {
@@ -30,13 +31,18 @@ export class MessagingService {
         ),
       );
     }
-    return new Messaging({
+    const newMessage = new Messaging({
       content: message.content,
       files: createMessagingDto.files,
       userId: createMessagingDto.userId,
       receiverId: createMessagingDto.receiverId,
       groupChatId: createMessagingDto.groupChatId,
     });
+
+    this.messagingGateway.sendMessageToRoom(newMessage.userId,newMessage.receiverId, newMessage)
+
+    return newMessage
+    
   }
 
   findAll() {
