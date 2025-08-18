@@ -10,9 +10,15 @@ import { RefreshJWTStrategy } from './services/auth/refreshToken.strategy';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { PrismaModule } from './services/prisma/prisma.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '15m' },

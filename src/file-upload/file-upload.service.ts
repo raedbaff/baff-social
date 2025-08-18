@@ -7,7 +7,7 @@ export class FileUploadService {
       throw new BadRequestException('no file uploaded');
     }
 
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf', 'image/webp'];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException('invalid file type');
     }

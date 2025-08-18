@@ -8,7 +8,10 @@ import { MessagingGateway } from './messaging.gateway';
 
 @Injectable()
 export class MessagingService {
-  constructor(private readonly prisma: PrismaService, private messagingGateway: MessagingGateway) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private messagingGateway: MessagingGateway,
+  ) {}
   async create(user: { id: number; email: string; role: Role }, createMessagingDto: CreateMessagingDto) {
     const message = await this.prisma.message.create({
       data: {
@@ -39,10 +42,9 @@ export class MessagingService {
       groupChatId: createMessagingDto.groupChatId,
     });
 
-    this.messagingGateway.sendMessageToRoom(newMessage.userId,newMessage.receiverId, newMessage)
+    this.messagingGateway.sendMessageToRoom(newMessage.userId, newMessage.receiverId, newMessage);
 
-    return newMessage
-    
+    return newMessage;
   }
 
   findAll() {
@@ -51,6 +53,50 @@ export class MessagingService {
 
   findOne(id: number) {
     return `This action returns a #${id} messaging`;
+  }
+  async findMessageBetweenUsers(id_1: number, id_2: number) {
+    const messages = await this.prisma.message.findMany({
+      where: {
+        OR: [
+          {
+            AND: [
+              {
+                userId: id_1,
+              },
+              { receiverId: id_2 },
+            ],
+          },
+          {
+            AND: [
+              {
+                userId: id_2,
+              },
+              { receiverId: id_1 },
+            ],
+          },
+        ],
+      },
+      include: {
+        files: true,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    const responseMessages: Messaging[] = [];
+    messages.forEach((message) =>
+      responseMessages.push(
+        new Messaging({
+          content: message.content,
+          files: message.files.map((file) => file.url),
+          userId: message.userId,
+          receiverId: message.receiverId,
+          groupChatId: message.groupChatId,
+        }),
+      ),
+    );
+    return responseMessages;
   }
 
   update(id: number, updateMessagingDto: UpdateMessagingDto) {

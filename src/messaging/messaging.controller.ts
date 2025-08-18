@@ -34,6 +34,11 @@ export class MessagingController {
   findOne(@Param('id') id: string) {
     return this.messagingService.findOne(+id);
   }
+  @Get(':id_1/:id_2')
+  @UseGuards(AuthGuard('jwt'))
+  findMessageBetweenUsers(@Param('id_1') id_1: number, @Param('id_2') id_2: number) {
+    return this.messagingService.findMessageBetweenUsers(id_1, id_2);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMessagingDto: UpdateMessagingDto) {
