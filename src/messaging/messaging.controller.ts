@@ -18,19 +18,15 @@ export class MessagingController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files'))
-  async create(@UploadedFiles() files: Express.Multer.File[], @Req() req: Request, @Body() createMessagingDto: CreateMessagingDto) {
+  async create(@UploadedFiles() files: Express.Multer.File[], @Body() createMessagingDto: CreateMessagingDto) {
     if (files && files.length > 0) {
       createMessagingDto.files = files.map((file) => this.fileUploadService.handleFileUpload(file));
     }
-    return this.messagingService.create(req.user as { id: number; email: string; role: Role }, createMessagingDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.messagingService.findAll();
+    return this.messagingService.create(createMessagingDto);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
   findOne(@Param('id') id: string) {
     return this.messagingService.findOne(+id);
   }
@@ -41,12 +37,14 @@ export class MessagingController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMessagingDto: UpdateMessagingDto) {
-    return this.messagingService.update(+id, updateMessagingDto);
+  @UseGuards(AuthGuard('jwt'))
+  update(@Req() req: Request, @Param('id') id: string, @Body() updateMessagingDto: UpdateMessagingDto) {
+    return this.messagingService.update(req.user.id,+id, updateMessagingDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.messagingService.remove(+id);
+  @UseGuards(AuthGuard('jwt'))
+  remove(@Req() req:Request,@Param('id') id: string) {
+    return this.messagingService.remove(req.user.id,+id);
   }
 }

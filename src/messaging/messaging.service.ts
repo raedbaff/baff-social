@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateMessagingDto } from './dto/create-messaging.dto';
 import { UpdateMessagingDto } from './dto/update-messaging.dto';
 import { Role } from 'generated/prisma';
@@ -12,7 +12,7 @@ export class MessagingService {
     private readonly prisma: PrismaService,
     private messagingGateway: MessagingGateway,
   ) {}
-  async create(user: { id: number; email: string; role: Role }, createMessagingDto: CreateMessagingDto) {
+  async create(createMessagingDto: CreateMessagingDto) {
     const message = await this.prisma.message.create({
       data: {
         content: createMessagingDto.content,
@@ -47,12 +47,13 @@ export class MessagingService {
     return newMessage;
   }
 
-  findAll() {
-    return `This action returns all messaging`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} messaging`;
+  async findOne(id: number) {
+    return await this.prisma.message.findFirst({
+      where: {id},
+      include: {
+        files: true
+      }
+    })
   }
   async findMessageBetweenUsers(id_1: number, id_2: number) {
     const messages = await this.prisma.message.findMany({
@@ -99,11 +100,24 @@ export class MessagingService {
     return responseMessages;
   }
 
-  update(id: number, updateMessagingDto: UpdateMessagingDto) {
-    return `This action updates a #${id} messaging`;
+  async update(userId:number,id: number, updateMessagingDto: UpdateMessagingDto) {
+    const existingMessage = await this.prisma.message.findFirst({
+      where: {id}
+    })
+    if (existingMessage.userId !== userId) throw new UnauthorizedException("You do not have the right to update this message")
+    return await this.prisma.message.update({
+      where: {id},
+      data: {content: updateMessagingDto.content}
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} messaging`;
+  async remove(userId:number,id: number) {
+    const existingMessage = await this.prisma.message.findFirst({
+      where: {id}
+    })
+    if (existingMessage.userId !== userId) throw new UnauthorizedException("You do not have the right to remove this message")
+    return await this.prisma.message.delete({
+      where: {id}
+    })
   }
 }
