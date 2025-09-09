@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthService } from './services/auth/auth.service';
+import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { AuthController } from './services/auth/auth.controller';
-import { JWTStrategy } from './services/auth/jwt.strategy';
-import { RefreshJWTStrategy } from './services/auth/refreshToken.strategy';
+import { AuthController } from './auth/auth.controller';
+import { JWTStrategy } from './auth/jwt.strategy';
+import { RefreshJWTStrategy } from './auth/refreshToken.strategy';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { MessagingModule } from './messaging/messaging.module';
-import { PrismaModule } from './services/prisma/prisma.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 

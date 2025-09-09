@@ -1,7 +1,7 @@
-import { JWTUser } from "src/services/auth/jwt.strategy";
+import { JWTUser } from 'src/auth/jwt.strategy';
 
 declare global {
-    namespace Express {
-        interface User extends JWTUser{}
-    }
+  namespace Express {
+    interface User extends JWTUser {}
+  }
 }

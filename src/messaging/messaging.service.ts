@@ -3,7 +3,7 @@ import { CreateMessagingDto } from './dto/create-messaging.dto';
 import { UpdateMessagingDto } from './dto/update-messaging.dto';
 import { Role } from 'generated/prisma';
 import { Messaging } from './entities/messaging.entity';
-import { PrismaService } from 'src/services/prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { MessagingGateway } from './messaging.gateway';
 
 @Injectable()
@@ -49,11 +49,11 @@ export class MessagingService {
 
   async findOne(id: number) {
     return await this.prisma.message.findFirst({
-      where: {id},
+      where: { id },
       include: {
-        files: true
-      }
-    })
+        files: true,
+      },
+    });
   }
   async findMessageBetweenUsers(id_1: number, id_2: number) {
     const messages = await this.prisma.message.findMany({
@@ -100,24 +100,24 @@ export class MessagingService {
     return responseMessages;
   }
 
-  async update(userId:number,id: number, updateMessagingDto: UpdateMessagingDto) {
+  async update(userId: number, id: number, updateMessagingDto: UpdateMessagingDto) {
     const existingMessage = await this.prisma.message.findFirst({
-      where: {id}
-    })
-    if (existingMessage.userId !== userId) throw new UnauthorizedException("You do not have the right to update this message")
+      where: { id },
+    });
+    if (existingMessage.userId !== userId) throw new UnauthorizedException('You do not have the right to update this message');
     return await this.prisma.message.update({
-      where: {id},
-      data: {content: updateMessagingDto.content}
-    })
+      where: { id },
+      data: { content: updateMessagingDto.content },
+    });
   }
 
-  async remove(userId:number,id: number) {
+  async remove(userId: number, id: number) {
     const existingMessage = await this.prisma.message.findFirst({
-      where: {id}
-    })
-    if (existingMessage.userId !== userId) throw new UnauthorizedException("You do not have the right to remove this message")
+      where: { id },
+    });
+    if (existingMessage.userId !== userId) throw new UnauthorizedException('You do not have the right to remove this message');
     return await this.prisma.message.delete({
-      where: {id}
-    })
+      where: { id },
+    });
   }
 }

@@ -7,12 +7,15 @@ import * as bcrypt from 'bcrypt';
 import { ELoginUser } from 'src/DTO/user/login.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { EUpdateUser } from 'src/DTO/user/user.update.dto';
+import { FullUserInfo } from 'src/DTO/user/fullUser.dto';
+import { url } from 'inspector';
 
 export interface IAuthService {
   register(data: ERegisterUser): Promise<UserModel>;
   login(data: ELoginUser): Promise<{ user: UserModel; token: string; refreshToken: string }>;
   updateUserInfo(User: { id: number; email: string; role: Role }, userId: number, UserInfo: EUpdateUser): Promise<UserModel>;
   generateAccessAndRefreshTokens(user: { id: number; email: string; role: Role }): Promise<{ accessToken: string; refreshToken: string }>;
+  getUser(id: number): Promise<FullUserInfo>;
 }
 
 @Injectable()
@@ -21,6 +24,23 @@ export class AuthService implements IAuthService {
     private readonly prisma: PrismaService,
     private jwt: JwtService,
   ) {}
+  async getUser(id: number): Promise<FullUserInfo> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        links: true,
+      },
+    });
+    if (!user) throw new NotFoundException(`user with id ${id} not found`);
+    return new FullUserInfo({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      bio: user.bio,
+      photo: user.photo,
+      links: user.links.map((link) => link.url),
+    });
+  }
   async updateUserInfo(User: { id: number; email: string; role: Role }, userId: number, UserInfo: EUpdateUser): Promise<UserModel> {
     const id = Number(userId);
     if (!id) throw new BadRequestException('Invalid user id');
@@ -31,7 +51,7 @@ export class AuthService implements IAuthService {
     if (Array.isArray(links) && links.length > 0) {
       await this.prisma.link.deleteMany({ where: { userId: id } });
       await this.prisma.link.createMany({
-        data: links.map((link) => ({ ...link })),
+        data: links.map((link) => ({ url: link, userId })),
       });
     }
 

@@ -1,8 +1,4 @@
-import { IsArray, IsOptional, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
-import { Link } from 'generated/prisma';
-import { ELink } from './link.dto';
-import { Type } from 'class-transformer';
-
+import { IsArray, IsOptional, isString, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
 export class EUpdateUser {
   @IsString()
   @IsOptional()
@@ -21,7 +17,6 @@ export class EUpdateUser {
 
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ELink)
-  links: ELink[];
+  @IsString({ each: true })
+  links: string[];
 }

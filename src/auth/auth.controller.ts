@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ELoginUser } from 'src/DTO/user/login.dto';
 import { ERegisterUser } from 'src/DTO/user/register.dto';
 import { UserModel } from 'src/DTO/user/user.dto';
@@ -10,12 +10,14 @@ import { EUpdateUser } from 'src/DTO/user/user.update.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { FullUserInfo } from 'src/DTO/user/fullUser.dto';
 
 export interface IAuthController {
   register(data: ERegisterUser): Promise<UserModel>;
   login(res: Response, data: ELoginUser): Promise<UserModel>;
   updateUserInfo(file: Express.Multer.File, req: Request, userId: number, UserInfo: EUpdateUser): Promise<UserModel>;
   refreshToken(req: Request, res: Response): Promise<{ message: string }>;
+  getUser(userId: number): Promise<FullUserInfo>;
 }
 
 @Controller('auth')
@@ -24,6 +26,11 @@ export class AuthController implements IAuthController {
     private readonly authService: AuthService,
     private readonly fileUploadService: FileUploadService,
   ) {}
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':userId')
+  async getUser(@Param('userId') userId: number): Promise<FullUserInfo> {
+    return await this.authService.getUser(userId);
+  }
 
   @Put(':userId')
   @UseGuards(AuthGuard('jwt'))

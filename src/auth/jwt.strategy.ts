@@ -5,10 +5,10 @@ import { Request } from 'express';
 import { Role } from 'generated/prisma';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 export type JWTUser = {
-  id:number,
-  email:string,
-  role:string
-}
+  id: number;
+  email: string;
+  role: string;
+};
 
 @Injectable()
 export class JWTStrategy extends PassportStrategy(Strategy) {

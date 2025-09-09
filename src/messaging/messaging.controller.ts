@@ -22,29 +22,29 @@ export class MessagingController {
     if (files && files.length > 0) {
       createMessagingDto.files = files.map((file) => this.fileUploadService.handleFileUpload(file));
     }
-    return this.messagingService.create(createMessagingDto);
+    return await this.messagingService.create(createMessagingDto);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
-  findOne(@Param('id') id: string) {
-    return this.messagingService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.messagingService.findOne(+id);
   }
   @Get(':id_1/:id_2')
   @UseGuards(AuthGuard('jwt'))
-  findMessageBetweenUsers(@Param('id_1') id_1: number, @Param('id_2') id_2: number) {
-    return this.messagingService.findMessageBetweenUsers(id_1, id_2);
+  async findMessageBetweenUsers(@Param('id_1') id_1: number, @Param('id_2') id_2: number) {
+    return await this.messagingService.findMessageBetweenUsers(id_1, id_2);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
-  update(@Req() req: Request, @Param('id') id: string, @Body() updateMessagingDto: UpdateMessagingDto) {
-    return this.messagingService.update(req.user.id,+id, updateMessagingDto);
+  async update(@Req() req: Request, @Param('id') id: string, @Body() updateMessagingDto: UpdateMessagingDto) {
+    return await this.messagingService.update(req.user.id, +id, updateMessagingDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  remove(@Req() req:Request,@Param('id') id: string) {
-    return this.messagingService.remove(req.user.id,+id);
+  async remove(@Req() req: Request, @Param('id') id: string) {
+    return await this.messagingService.remove(req.user.id, +id);
   }
 }
