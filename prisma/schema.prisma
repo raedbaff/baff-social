@@ -31,6 +31,7 @@ model User {
   directMessages Message[] @relation("DirectMessages")
   files   MessageFile[]
   groupChats GroupChat[] @relation("GroupChatUsers")
+  createdGroupChats GroupChat[]
 }
 model Message {
   id        Int      @default(autoincrement()) @id
@@ -56,9 +57,13 @@ model MessageFile {
 model GroupChat {
   id        Int      @default(autoincrement()) @id
   name      String
+  photo     String
+  description String
   createdAt DateTime @default(now())
   users     User[]   @relation("GroupChatUsers")
   messages  Message[]
+  ownerId Int
+  owner   User     @relation(fields: [ownerId], references: [id])
 }
 
 model Link {

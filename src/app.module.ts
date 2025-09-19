@@ -12,6 +12,7 @@ import { MessagingModule } from './messaging/messaging.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { GroupchatModule } from './groupchat/groupchat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { join } from 'path';
     FileUploadModule,
     MessagingModule,
     PrismaModule,
+    GroupchatModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService, JWTStrategy, RefreshJWTStrategy],

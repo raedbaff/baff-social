@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClient, Role, User } from 'generated/prisma';
+import {  Role } from 'generated/prisma';
 import { ERegisterUser } from 'src/DTO/user/register.dto';
 import { UserModel } from 'src/DTO/user/user.dto';
 import * as bcrypt from 'bcrypt';
@@ -8,7 +8,6 @@ import { ELoginUser } from 'src/DTO/user/login.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { EUpdateUser } from 'src/DTO/user/user.update.dto';
 import { FullUserInfo } from 'src/DTO/user/fullUser.dto';
-import { url } from 'inspector';
 
 export interface IAuthService {
   register(data: ERegisterUser): Promise<UserModel>;
